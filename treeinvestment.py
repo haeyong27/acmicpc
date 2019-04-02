@@ -1,56 +1,76 @@
-# n, m, k = map(int, input().split(' '))
+n, m, k = map(int, input().split(' '))
 
-# mapp = []
-# for i in range(n):
-#     mapp.append(list(map(int, input().split(' '))))
+s2d2 = []
+for i in range(n):
+    s2d2.append(list(map(int, input().split(' '))))
 
-# trees = []
-# for i in range(m):
-#     trees.append(map(int, input().split(' ')))
+trees = []
+for i in range(m):
+    a, b, c = map(int, input().split(' '))
+    trees.append([a-1, b-1, c])
 
-n, m, k = (5, 2, 1)
-s='''2 3 2 3 2
-2 3 2 3 2
-2 3 2 3 2
-2 3 2 3 2
-2 3 2 3 2'''
-
-mapp = []
-for i in s.split('\n'):
-    mapp.append(list(map(int, i.split(' '))))
-
+yangboonmap = [[0 for _ in range(n)] for _ in range(n)]
 for i in range(n):
     for j in range(n):
-        mapp[i][j] += 5
+        yangboonmap[i][j] += 5
 
-trees = [[2, 1, 3], [3, 2, 3]]
-
-tmap = [[[0] for _ in range(n)] for _ in range(n)]
-
+treemap = [[[] for _ in range(n)] for _ in range(n)]
 for i in trees:
     x, y, z = i
-    tmap[x][y] = [z]
-
+    treemap[x][y].append(z)
 year = 0
-def add(a):
-    return a+1
-    
-while(True):
-    year += 1
-    #양분 소비
+while (True):
+    treetokill = []
+    # 봄
+    # 양분 소비
     for i in range(n):
         for j in range(n):
-            mapp[i][j] -= tmap[i][j][0]
-    #나이 한살 먹기
-    for i in trees:
-        i[2] += 1
-    
-    #한살 먹은 나무들 나이 갱신
-    for i in trees:
-        x, y, z = i
-        tmap[x][y] = [z]
+            for treeage in sorted(treemap[i][j]):
+                if yangboonmap[i][j] - treeage >= 0:
+                    yangboonmap[i][j] -= treeage
+                else:  
+                    #양분을 소비하지 못하는 나무의 좌표와 나이
+                    treetokill.append((i, j, treeage))
 
-    #해당 연도에 남은 나무 수 파악하고 끝
+    # 나이 한살 먹기
+    for i in range(n):
+        for j in range(n):
+            if treemap[i][j]:
+                treemap[i][j] = [a + 1 for a in treemap[i][j]]
+
+    # 여름은 죽을 나무가 죽고, 양분이 되기
+    for i, j, c in treetokill:
+        treemap[i][j].remove(c)
+        yangboonmap[i][j] += int(c/2)
+
+
+
+
+    # 가을은 번식
+    for i in range(n):
+        for j in range(n):
+            for treeage in sorted(treemap[i][j]):
+                if treeage % 5 == 0:
+                    for ii in [-1, 0, 1]:
+                        for jj in [-1, 0, 1]:
+                            if ii == 0 and jj == 0:
+                                continue
+                            ni = i + ii
+                            nj = j + jj
+                            if 0 <= ni < n and 0 <= nj < n:
+                                treemap[ni][nj].append(1)
+
+    # 겨울에 양분뿌리기
+    for i in range(n):
+        for j in range(n):
+            yangboonmap[i][j] += s2d2[i][j]
+
+    # 해당 연도에 남은 나무 수 파악하고 끝
+    year += 1
     if year == k:
-        print('answer')
+        ans = 0
+        for i in range(n):
+            for j in range(n):
+                ans += len(treemap[i][j])
+        print(ans)
         break
