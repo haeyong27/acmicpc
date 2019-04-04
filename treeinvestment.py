@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 n, m, k = map(int, input().split(' '))
 
 s2d2 = []
@@ -9,88 +11,61 @@ for i in range(m):
     a, b, c = map(int, input().split(' '))
     trees.append([a-1, b-1, c])
 
-yangboonmap = [[0 for _ in range(n)] for _ in range(n)]
+treemap = {}
 for i in range(n):
     for j in range(n):
-        yangboonmap[i][j] += 5
+        treemap[(i, j)] = defaultdict(lambda: 0)
 
-treemap = [[[] for _ in range(n)] for _ in range(n)]
 for i in trees:
     x, y, z = i
-    treemap[x][y].append(z)
+    treemap[(x, y)][z] += 1
+
+yangboonmap = [[5 for _ in range(n)] for _ in range(n)]
+
 year = 0
 flag = 0
 while (True):
-    treetokill = []
-    # 봄
-    # 양분 소비
+    # 봄 양분 소비, 나이먹기, 죽으면 양분 뿌리기
     for i in range(n):
         for j in range(n):
-            if treemap[i][j]:
-                for treeage in sorted(treemap[i][j]):
-                    if yangboonmap[i][j] - treeage >= 0:
-                        yangboonmap[i][j] -= treeage
-                    else:  
-                        #양분을 소비하지 못하는 나무의 좌표와 나이
-                        treetokill.append((i, j, treeage))
+            next_cell = defaultdict(lambda: 0)
+            yangboon = 0
+            for age, count in sorted(treemap[(i, j)].items()):  
+                #양분 소비하기
+                survive = min(yangboonmap[i][j]//age, count)
+                #양분을 소비하지 못하는 나무 카운트하기
+                dead = count - survive
 
+                if survive > 0:
+                    #양분 소비한 만큼 차감하기
+                    yangboonmap[i][j] -= age*survive
+                    #나이먹을 준비
+                    next_cell[age+1] = survive
 
-    # 여름은 죽을 나무가 죽고, 양분이 되기
-    for i, j, c in treetokill:
-        treemap[i][j].remove(c)
-        yangboonmap[i][j] += int(c/2)
+                #죽은나무 양분뿌리기
+                yangboon += (age//2)*dead
 
+            yangboonmap[i][j] += yangboon
+            treemap[(i, j)] = next_cell
 
-    # 나이 한살 먹기
-    for i in range(n):
-        for j in range(n):
-            if treemap[i][j]:
-                treemap[i][j] = [a + 1 for a in treemap[i][j]]
-
-
-
-
-
-    # if (year+1)==k:
-    #     ans = 0
-    #     flag = 1   
-    #     for i in range(n):
-    #         for j in range(n):
-    #             ans += len(treemap[i][j])
-
-    #     # 가을은 번식
-    #     for i in range(n):
-    #         for j in range(n):
-    #             if treemap[i][j]:
-    #                 for treeage in sorted(treemap[i][j]):
-    #                     if treeage % 5 == 0:
-    #                         for ii in [-1, 0, 1]:
-    #                             for jj in [-1, 0, 1]:
-    #                                 if ii == 0 and jj == 0:
-    #                                     continue
-    #                                 ni = i + ii
-    #                                 nj = j + jj
-    #                                 if 0 <= ni < n and 0 <= nj < n:
-    #                                     ans += 1
-        
-
-    if flag == 1:
-        print(ans)
-        break
+    
     # 가을은 번식
     for i in range(n):
         for j in range(n):
-            if treemap[i][j]:
-                for treeage in sorted(treemap[i][j]):
-                    if treeage % 5 == 0:
-                        for ii in [-1, 0, 1]:
-                            for jj in [-1, 0, 1]:
-                                if ii == 0 and jj == 0:
-                                    continue
-                                ni = i + ii
-                                nj = j + jj
-                                if 0 <= ni < n and 0 <= nj < n:
-                                    treemap[ni][nj].append(1)
+            for treeage, count in treemap[(i, j)].items():
+                if treeage % 5 == 0:
+                    for ii in [-1, 0, 1]:
+                        for jj in [-1, 0, 1]:
+                            if ii == 0 and jj == 0:
+                                continue
+                            ni = i + ii
+                            nj = j + jj
+                            if 0 <= ni < n and 0 <= nj < n:
+                                if 1 in treemap[(ni, nj)]:
+                                    treemap[(ni, nj)][1] += count
+                                else:
+                                    treemap[(ni, nj)][1] = count
+
 
     # 겨울에 양분뿌리기
     for i in range(n):
@@ -103,6 +78,7 @@ while (True):
         ans = 0
         for i in range(n):
             for j in range(n):
-                ans += len(treemap[i][j])
+                for k, v in treemap[(i, j)].items():
+                    ans += v
         print(ans)
         break
