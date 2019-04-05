@@ -56,3 +56,26 @@ for i in comb:
     ans = max(ans, spread(temp_map))
 
 print(ans)
+
+
+# def dfs(idx, cnt):
+#     global ans
+
+#     if cnt == 3:
+#         temp_map = copy.deepcopy(mapp)
+#         for x, y in temp_wall:
+#             temp_map[x][y] = 1
+#         ans = max(ans, spread(temp_map))
+#         return
+
+#     for i in range(idx, len(load)):
+#         if check_load[i] == 1:
+#             continue
+#         temp_wall.append(load[i])
+#         check_load[i] = 1
+#         dfs(i, cnt + 1)
+#         temp_wall.pop()
+#         check_load[i] = 0
+
+# dfs(0,0)
+# print(ans)
