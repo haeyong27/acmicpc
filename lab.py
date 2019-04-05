@@ -50,7 +50,12 @@ temp_wall = []
 
 comb = combinations(load, 3)
 for i in comb:
-    temp_map = copy.deepcopy(mapp)
+#     temp_map = copy.deepcopy(mapp)
+    temp_map = [] # 딥카피보다 빠름
+    for i in mapp:
+        temp_map.append(i[:])
+
+
     for x, y in i:
         temp_map[x][y] = 1
     ans = max(ans, spread(temp_map))
