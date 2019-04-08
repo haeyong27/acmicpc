@@ -58,6 +58,8 @@ def dfs():
                     for c in cnt:
                         tot_cnt += c
                     ans = min(ans, tot_cnt)
+                    fill_restore([x, y], size)
+                    cnt[size] -= 1
                     return
                 #다음 색종이 채우기
                 dfs()
