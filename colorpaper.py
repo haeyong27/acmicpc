@@ -51,6 +51,16 @@ def dfs():
             result = fill([x, y], size)
             if result:
                 cnt[size] += 1
+
+                #가지치기
+                temp_cnt = 0
+                for zz in cnt:
+                    temp_cnt += zz
+                if temp_cnt > ans:
+                    cnt[size] -= 1
+                    fill_restore([x, y], size)
+                    continue
+
                 #넣은 뒤 다 채워졌는지 확인
                 #다 채워졌으면 ans 갱신하기
                 if check_complete():
