@@ -10,6 +10,7 @@ def dfs(day, pay, temp):
     global cnt
     if day == n:
         ans = max(ans, pay)
+        return
     if day > n:
         ans = max(ans, temp)
         return
